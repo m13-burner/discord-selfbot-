@@ -9,13 +9,14 @@ class AFK(commands.Cog):
         self.bot = bot
         self.afk_active: bool = False
         self.afk_message: str = "I'm AFK right now, I'll be back soon!"
-        # Track users already notified (to avoid spamming)
         self._notified: set = set()
+        self._setting_afk: bool = False
 
     # ── Commands ─────────────────────────────────────────────────────────────
 
     @commands.command(name="afk")
     async def afk_cmd(self, ctx, *, message: str = None):
+        self._setting_afk = True
         if message is None or message.lower() == "off":
             self.afk_active = False
             self._notified.clear()
@@ -32,15 +33,15 @@ class AFK(commands.Cog):
             await msg.delete()
         except Exception:
             pass
+        self._setting_afk = False
 
     # ── Listener ─────────────────────────────────────────────────────────────
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        # If the bot owner sends any message (not a command), exit AFK
         if message.author.id == self.bot.user.id:
             prefix = self.bot.command_prefix
-            if self.afk_active and not message.content.startswith(prefix):
+            if self.afk_active and not self._setting_afk and not message.content.startswith(prefix):
                 self.afk_active = False
                 self._notified.clear()
                 log_success("AFK auto-disabled (you sent a message)")
@@ -49,11 +50,12 @@ class AFK(commands.Cog):
         if not self.afk_active:
             return
 
-        # Only trigger on mentions
-        if self.bot.user not in message.mentions:
+        is_dm = isinstance(message.channel, discord.DMChannel)
+        mentioned = self.bot.user in message.mentions
+
+        if not is_dm and not mentioned:
             return
 
-        # Don't notify the same person twice
         if message.author.id in self._notified:
             return
 
@@ -63,7 +65,7 @@ class AFK(commands.Cog):
         try:
             await message.channel.send(reply)
             log_info(f"AFK: notified {message.author.name}")
-        except Exception as e:
+        except Exception:
             pass
 
 
