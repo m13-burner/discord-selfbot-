@@ -193,7 +193,10 @@ class AIChat(commands.Cog):
         await status.delete()
 
         if result:
-            await ctx.send(f"🧠 **Psychological Portrait — {member.name}**\n\n{result}")
+            full = f"🧠 **Psychological Portrait — {member.name}**\n\n{result}"
+            chunks = [full[i:i+1990] for i in range(0, len(full), 1990)]
+            for chunk in chunks:
+                await ctx.send(chunk)
         else:
             err = await ctx.send("❌ Failed to generate analysis. Check your API key in `.env`.")
             await asyncio.sleep(8)
@@ -243,7 +246,10 @@ class AIChat(commands.Cog):
 
         if reply:
             self._history[cid].append({"role": "assistant", "content": reply})
-            sent = await message.channel.send(reply)
+            chunks = [reply[i:i+1990] for i in range(0, len(reply), 1990)]
+            sent = None
+            for chunk in chunks:
+                sent = await message.channel.send(chunk)
             self._last_reply[cid] = sent.id
             log_success(f"AI replied to {message.author.name} in {message.channel}")
 
