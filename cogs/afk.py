@@ -9,7 +9,6 @@ class AFK(commands.Cog):
         self.bot = bot
         self.afk_active: bool = False
         self.afk_message: str = "I'm AFK right now, I'll be back soon!"
-        self._notified: set = set()
         self._setting_afk: bool = False
 
     # ── Commands ─────────────────────────────────────────────────────────────
@@ -19,12 +18,10 @@ class AFK(commands.Cog):
         self._setting_afk = True
         if message is None or message.lower() == "off":
             self.afk_active = False
-            self._notified.clear()
             msg = await ctx.send("✅ AFK mode **disabled**. Welcome back!")
         else:
             self.afk_active = True
             self.afk_message = message
-            self._notified.clear()
             msg = await ctx.send(f"💤 AFK mode **enabled** — *{message}*")
             log_info(f"AFK active: {message}")
 
@@ -43,7 +40,6 @@ class AFK(commands.Cog):
             prefix = self.bot.command_prefix
             if self.afk_active and not self._setting_afk and not message.content.startswith(prefix):
                 self.afk_active = False
-                self._notified.clear()
                 log_success("AFK auto-disabled (you sent a message)")
             return
 
@@ -56,10 +52,6 @@ class AFK(commands.Cog):
         if not is_dm and not mentioned:
             return
 
-        if message.author.id in self._notified:
-            return
-
-        self._notified.add(message.author.id)
         reply = f"💤 **{self.bot.user.display_name}** is currently AFK — {self.afk_message}"
 
         try:
