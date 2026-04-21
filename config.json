@@ -1,0 +1,17 @@
+{
+    "prefix": "!s ",
+    "auto_delete_commands": true,
+    "auto_delete_delay": 2,
+    "ai_enabled": false,
+    "ai_provider": "groq",
+    "ai_mode": "mentions",
+    "ai_model_groq": "llama-3.3-70b-versatile",
+    "ai_model_openai": "gpt-4o-mini",
+    "ai_persona": "You are a chill and casual person. Reply naturally in the same language as the user. Keep replies short and conversational.",
+    "ai_channels": [],
+    "afk_active": false,
+    "afk_message": "I'm AFK right now, I'll be back soon!",
+    "keywords": [],
+    "keyword_log_file": "logs/keywords.txt",
+    "keyword_webhook": ""
+}
