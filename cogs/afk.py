@@ -38,7 +38,8 @@ class AFK(commands.Cog):
     async def on_message(self, message: discord.Message):
         if message.author.id == self.bot.user.id:
             prefix = self.bot.command_prefix
-            if self.afk_active and not self._setting_afk and not message.content.startswith(prefix):
+            in_guild = message.guild is not None
+            if self.afk_active and not self._setting_afk and in_guild and not message.content.startswith(prefix):
                 self.afk_active = False
                 log_success("AFK auto-disabled (you sent a message)")
             return
